@@ -1,0 +1,333 @@
+info:
+  resource_route_prefixes:
+    admin: /admin
+    staff: /staff
+    student: /student
+    ticket: /ticket
+  techstack:
+  - flask
+  - postgresql
+  - jwt
+  title: Support Ticket System
+  version: 1.0.0
+resources:
+  admin:
+  - auth: None
+    content-type: application/json
+    method: POST
+    parameters:
+      email: string
+      password: string
+      username: string
+    path: /register
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      - message: Admin already exists
+        status_code: 401
+      success:
+        message: Admin created
+        status_code: 201
+  - auth: None
+    content-type: application/json
+    method: POST
+    parameters:
+      password: string
+      username: string
+    path: /login
+    response:
+      fail:
+      - message: Invalid credentials
+        status_code: 401
+      - message: unauthorized access
+        status_code: 401
+      success:
+        response: access_token
+        status_code: 200
+  - auth: admin
+    method: POST
+    path: /logout
+    response:
+      success:
+        message: logged out successfully
+        status_code: 200
+  - auth: admin
+    method: POST
+    path: /refresh
+    response:
+      success:
+        response: access_token
+        status_code: 200
+  - auth: admin
+    content-type: application/json
+    method: POST
+    parameters:
+      email: string
+      password: string
+      username: string
+    path: /add-staff
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      - message: user already exists
+        status_code: 401
+      success:
+        message: staff created
+        status_code: 201
+  - auth: admin
+    method: DELETE
+    path: /delete-staff/<int:id>
+    response:
+      fail:
+      - message: staff does not exist
+        status_code: 404
+      success:
+        message: staff deleted successfully
+        status_code: 204
+  - auth: admin
+    content-type: application/json
+    method: PUT
+    parameters:
+      password: string
+    path: /change-password
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      success:
+        message: password changed successfully
+        status_code: 202
+  - auth: admin
+    method: DELETE
+    path: /delete-ticket/<int:id>
+    response:
+      fail:
+      - message: ticket does not exist
+        status_code: 404
+      success:
+        message: ticket deleted successfully
+        status_code: 204
+  - auth: admin
+    method: GET
+    path: /get-all-staff-stats
+    response:
+      success:
+        response: object
+        status_code: 200
+  - auth: admin
+    method: GET
+    path: /get-staff-stats/<int:id>
+    response:
+      fail:
+      - message: staff does not exist
+        status_code: 404
+      success:
+        response: Array
+        status_code: 200
+  staff:
+  - auth: None
+    content-type: application/json
+    method: POST
+    parameters:
+      password: string
+      username: string
+    path: /login
+    response:
+      fail:
+      - message: Invalid credentials
+        status_code: 401
+      - message: unauthorized access
+        status_code: 401
+      success:
+        response: access_token
+        status_code: 200
+  - auth: staff
+    method: POST
+    path: /logout
+    response:
+      success:
+        message: logged out successfully
+        status_code: 200
+  - auth: staff
+    method: POST
+    path: /refresh
+    response:
+      success:
+        response: access_token
+        status_code: 200
+  - auth: staff
+    content-type: application/json
+    method: PUT
+    parameters:
+      password: string
+    path: /change-password
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      success:
+        message: password changed successfully
+        status_code: 202
+  student:
+  - auth: None
+    content-type: application/json
+    method: POST
+    parameters:
+      email: string
+      password: string
+      username: string
+    path: /register
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      - message: user already exists
+        status_code: 401
+      success:
+        message: student created
+        status_code: 201
+  - auth: None
+    content-type: application/json
+    method: POST
+    parameters:
+      password: string
+      username: string
+    path: /login
+    response:
+      fail:
+      - message: Invalid credentials
+        status_code: 401
+      - message: unauthorized access
+        status_code: 401
+      success:
+        response: access_token
+        status_code: 200
+  - auth: student
+    method: POST
+    path: /logout
+    response:
+      success:
+        message: logged out successfully
+        status_code: 200
+  - auth: student
+    method: POST
+    path: /refresh
+    response:
+      success:
+        response: access_token
+        status_code: 200
+  - auth: student
+    content-type: application/json
+    method: PUT
+    parameters:
+      password: string
+    path: /change-password
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      success:
+        message: password changed successfully
+        status_code: 202
+  ticket:
+  - auth: staff or student or admin
+    method: GET
+    path: /
+    response:
+      success:
+        response: Array
+        status_code: 200
+  - auth: staff or student or admin
+    method: GET
+    path: /<int:id>
+    response:
+      fail:
+      - message: ticket does not exist
+        status_code: 404
+      success:
+        response: object
+        status_code: 200
+  - auth: student
+    content-type: application/json
+    method: POST
+    parameters:
+      body: string
+      title: string
+      user_attachments: Array
+    path: /issue-ticket
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      success:
+        message: ticket issued successfully
+        status_code: 201
+  - auth: student
+    content-type: application/json
+    method: POST
+    parameters:
+      title: string
+    path: /get-similar
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      success:
+        response: Array
+        status_code: 200
+  - auth: staff
+    content-type: application/json
+    method: PUT
+    parameters:
+      solution: string
+      staff_attachments: Array
+    path: /resolve/<int:id>
+    response:
+      fail:
+      - message: Bad request
+        status_code: 400
+      - message: ticket does not exist
+        status_code: 404
+      success:
+        message: ticket resolved successfully
+        status_code: 201
+  - auth: student
+    method: DELETE
+    path: /delete/<int:id>
+    response:
+      fail:
+      - message: unauthorized access
+        status_code: 401
+      - message: ticket does not exist
+        status_code: 404
+      success:
+        message: ticket deleted successfully
+        status_code: 202
+  - auth: student
+    method: PUT
+    path: /one-up/<int:id>
+    response:
+      fail:
+      - message: you can't one up yourself
+        status_code: 400
+      - message: ticket does not exist
+        status_code: 404
+      success:
+        message: one upped successfully
+        status_code: 201
+  - auth: student
+    method: GET
+    path: /get-all-issues
+    response:
+      success:
+        response: Array
+        status_code: 200
+  - auth: staff
+    method: GET
+    path: /get-all-resolves
+    response:
+      success:
+        response: Array
+        status_code: 200
