@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import MyTickets from '../views/MyTickets.vue'
 import NewTicket from '../views/NewTicket.vue'
 import TicketDetails from '../views/TicketDetails.vue'
+import FaqDetails from '../views/FaqDetails.vue'
 import Solutions from '../views/Solutions.vue'
 import student_routes from './student'
 import admin_routes from './admin'
@@ -43,6 +44,12 @@ const routes = [{
         path: '/tickets/:id',
         name: 'TicketDetails',
         component: TicketDetails,
+        props: true
+    },
+    {
+        path: '/faq/:id',
+        name: 'FaqDetails',
+        component: FaqDetails,
         props: true
     },
 

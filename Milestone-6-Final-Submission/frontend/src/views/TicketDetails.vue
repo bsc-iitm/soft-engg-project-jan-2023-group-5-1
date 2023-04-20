@@ -34,13 +34,14 @@
 
         <div v-if="staff" class="btn-grp">
             <button @click="resolve">Resolve</button>
-            <button @click="reset">Reset</button>
-            <!-- {{ body }} -->
+            <button class="red" @click="reset">Reset</button>
+            <button @click="add_faq" class="blue">Add to FAQ</button>
+           
         </div>
         <div v-if="can_delete" class="btn-grp">
             
             <button @click="delete_ticket">Delete</button>
-            <!-- {{ body }} -->
+          
         </div>
 
     
@@ -52,7 +53,7 @@
     import { QuillEditor } from '@vueup/vue-quill'
     import BlotFormatter from 'quill-blot-formatter'
     import '@vueup/vue-quill/dist/vue-quill.snow.css';
-    import { ref, onMounted, computed, onBeforeMount, onUpdated, watch } from 'vue';
+    import { ref, onMounted, computed, onBeforeMount, inject, watch } from 'vue';
 
     import OneUpIcon from  'vue-material-design-icons/OneUp.vue'
     import { useRoute } from 'vue-router';
@@ -63,49 +64,44 @@
             OneUpIcon
         },
         setup: () => {
+            const store = inject('store')
             const modules = {
             name: 'blotFormatter',  
             module: BlotFormatter, 
             }
-            const user = localStorage.getItem('username')
+            const user = store.username
 
             const route = useRoute()
             const one_up_icon = ref(null)
             const one_up = () => {
                 one_up_icon.value.$el.classList.toggle('active')
             }
-
-            const ticket = ref({
+            const ticket = ref(
+                {
                 id: 1,
-                title: 'Ticket 1',
-                body: 'body',
-                issued_at: new Date(),
-                status: 'Resolved',
+                title: '',
+                body: '',
+                issued_at: null,
+                status: '',
                 issuer: {
-                    username: 'John Doe',
+                    username: '',
                     email: ''},
                 resolver: {
-                    username: 'Jane Doe',
+                    username: '',
                     email: ''},
-                solution: 'Solution',
-                resolved_at: new Date(),
+                solution: '',
+                resolved_at: null,
                 user_attachments: [],
                 staff_attachments: [],
-                one_up: 10
+                one_up: 0
             
-            })
+            }
+            )
 
             
 
-            const auth = localStorage.getItem('auth')
-            const staff = computed(() => {
-                if(auth == 'staff') {
-                    return true
-                }
-                else{
-                    return false
-                }
-            })
+            const auth = store.auth
+            const staff = store.staff
 
             const issue_body = ref('')  // v-model for issue editor
             const solution_body = ref('')  // v-model for solution editor
@@ -162,6 +158,22 @@
                 })
             }
 
+            const add_faq = () => {
+                const url = 'http://localhost:5000/ticket/add-faq/' + id
+                fetch(url, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                    
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data)
+                })
+            }
+
             onBeforeMount(() => {
                 console.log('before mount started')
                 get_ticket()
@@ -189,14 +201,6 @@
 
             })
 
-            // onUpdated(()=>{
-            //     issue_editor.value.setHTML(ticket.value.body)
-            //     solution_editor.value.setHTML(ticket.value.solution)
-            //     if (ticket.value.issuer.username == user) {
-            //         can_delete.value = true
-            //     }
-            //     console.log(staff.value)
-            // })
 
           
 
@@ -215,7 +219,8 @@
                 one_up_icon,
                 ticket,
                 delete_ticket,
-                can_delete
+                can_delete,
+                add_faq
 
 
                 
@@ -290,6 +295,30 @@
 
 .new-ticket button{
     background: #2a623d;
+    color: white;
+    padding: 10px;
+    margin: 20px;
+    border-radius: 20px;
+    border: none;
+    width: 200px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.new-ticket button.red{
+    background: red;
+    color: white;
+    padding: 10px;
+    margin: 20px;
+    border-radius: 20px;
+    border: none;
+    width: 200px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.new-ticket button.blue{
+    background: navy;
     color: white;
     padding: 10px;
     margin: 20px;

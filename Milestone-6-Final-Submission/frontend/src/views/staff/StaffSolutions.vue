@@ -1,7 +1,8 @@
 <template>
     <div class="my-tickets">
         <div class="tickets">
-            <div class="ticket" v-for="ticket in tickets" :key="ticket.id">
+            <div v-if="loading" class="load"></div>
+            <div class="ticket" v-for="ticket in tickets" :key="ticket.id" v-show="!loading">
                 <router-link :to="{ name: 'TicketDetails', params: { id: ticket.id } }">
                     <Ticket
                     :id="ticket.id"
@@ -17,7 +18,7 @@
 
 <script>
 
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted, inject } from 'vue'
 
 
     import Ticket from '@/components/Ticket.vue'
@@ -28,24 +29,10 @@
         },
 
         setup(){
-            const user = localStorage.getItem('username')
-            const tickets = ref([
-                {
-                    id: 1,
-                    title: 'Ticket 1',
-                    body: 'body',
-                    issued_at: new Date(),
-                    is_resolved: false,
-                    issuer: 'John Doe',
-                    resolver: 'Jane Doe',
-                    solution: 'Solution',
-                    resolved_at: new Date(),
-                    user_attachments: [],
-                    staff_attachments: [],
-                    one_up: 10
-
-                },
-            ])
+            const store = inject('store')
+            const user = store.username
+            const tickets = ref([])
+            const loading = ref(true)
                 
             const get_resolves = () => {
                 const url = 'http://localhost:5000/ticket/get-all-resolves'
@@ -56,6 +43,7 @@
                 .then(res => res.json())
                 .then(data => {
                     tickets.value.push(...data)
+                    loading.value = false
                     // console.log(tickets.value)
                 })
             }
@@ -66,7 +54,8 @@
             
             return { 
                 tickets,
-                user
+                user,
+                loading
              }
         }
         

@@ -27,10 +27,11 @@
 <script>
 
 
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import jwt_decode from "jwt-decode";
   export default {
     setup () {
+        const store = inject('store')
         const username = ref('')
         const password = ref('')
         const login = () => {
@@ -52,6 +53,11 @@ import jwt_decode from "jwt-decode";
             .then(data => {
                 var decoded = jwt_decode(data.access_token);
                 console.log(decoded)
+                store.auth = decoded.auth_level
+                store.username = decoded.username
+                store.student = false
+                store.staff = false
+                store.admin = true
                 localStorage.setItem('auth', decoded.auth_level)
                 localStorage.setItem('username', decoded.username)
                 window.dispatchEvent(new CustomEvent('login-successfull', {

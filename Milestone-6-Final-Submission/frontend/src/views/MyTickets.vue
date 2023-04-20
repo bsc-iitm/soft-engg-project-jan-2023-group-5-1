@@ -1,7 +1,8 @@
 <template>
     <div class="my-tickets">
         <div class="tickets">
-            <div class="ticket" v-for="ticket in tickets" :key="ticket.id">
+            <div v-if="loading" class="load"></div>
+            <div v-show="!loading" class="ticket" v-for="ticket in tickets" :key="ticket.id">
                 <router-link :to="{ name: 'TicketDetails', params: { id: ticket.id } }">
                     <Ticket
                     :id="ticket.id"
@@ -17,7 +18,7 @@
 
 <script>
 
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted, inject } from 'vue'
 
 
     import Ticket from '../components/Ticket.vue'
@@ -28,28 +29,10 @@
         },
 
         setup(){
-            const user = localStorage.getItem('username')
-            const tickets = ref([
-                
-                {
-                    id: 1,
-                    title: 'Ticket 1',
-                    body: 'body',
-                    issued_at: new Date(),
-                    status: 'Resolved',
-                    issuer: {
-                        username: 'John Doe',
-                        email: ''},
-                    resolver: {
-                        username: 'Jane Doe',
-                        email: ''},
-                    solution: 'Solution',
-                    resolved_at: new Date(),
-                    user_attachments: [],
-                    staff_attachments: [],
-                    one_up: 10
-                }
-            ])
+            const store = inject('store')
+            const user = store.username
+            const loading = ref(true)
+            const tickets = ref([])
                 
             const get_issues = () => {
                 const url = 'http://localhost:5000/ticket/get-all-issues'
@@ -61,6 +44,7 @@
                 .then(data => {
                     // console.log(data)
                     tickets.value.push(...data)
+                    loading.value = false
                 })
             }
 
@@ -70,7 +54,8 @@
             
             return { 
                 tickets,
-                user
+                user,
+                loading
              }
         }
         

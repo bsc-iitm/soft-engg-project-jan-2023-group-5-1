@@ -1,7 +1,8 @@
 <template>
     <div class="my-tickets">
         <div class="tickets">
-            <div class="ticket" v-for="ticket in tickets" :key="ticket.id">
+            <div v-if="loading" class="load"></div>
+            <div class="ticket" v-for="ticket in tickets" :key="ticket.id" v-show="!loading">
                 <router-link :to="{ name: 'TicketDetails', params: { id: ticket.id } }">
                     <Ticket
                     :id="ticket.id"
@@ -27,27 +28,8 @@
         },
         setup(){
 
-            const tickets = ref([
-                
-                {
-                    id: 1,
-                    title: 'Ticket 1',
-                    body: 'body',
-                    issued_at: new Date(),
-                    status: 'Resolved',
-                    issuer: {
-                        username: 'John Doe',
-                        email: ''},
-                    resolver: {
-                        username: 'Jane Doe',
-                        email: ''},
-                    solution: 'Solution',
-                    resolved_at: new Date(),
-                    user_attachments: [],
-                    staff_attachments: [],
-                    one_up: 10
-                }
-            ])
+            const tickets = ref([])
+            const loading = ref(true)
             const get_tickets = () => {
                 const url = 'http://localhost:5000/ticket'
                 fetch(url, {
@@ -58,6 +40,7 @@
                 .then(data => {
                     // console.log(data)
                     tickets.value.push(...data)
+                    loading.value = false
                 })
             }
             onBeforeMount(()=>{
@@ -65,7 +48,8 @@
             })
 
             return {
-                tickets
+                tickets,
+                loading
             }
 
 

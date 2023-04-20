@@ -1,6 +1,6 @@
 <template>
     <nav class="navbar">
-    <ul v-if="student">
+    <ul v-if="store.student">
       <li class="nav-item">
         <router-link class="nav-link" to="/">Home</router-link>
       </li>
@@ -14,7 +14,7 @@
         <router-link class="nav-link" :to="{name: 'MyTickets'}">My Tickets</router-link>
       </li>
     </ul>
-    <ul v-if="staff">
+    <ul v-if="store.staff">
       <li class="nav-item">
         <router-link class="nav-link" to="/">Home</router-link>
       </li>
@@ -29,52 +29,23 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 
     export default {
         name: "SideNav",
         setup(){
-          const auth = localStorage.getItem('auth')
+          const store = inject('store')
+          const auth = ref(store.auth)
           const is_logged_in = ref(false)
-          const student = ref(false)
-          const admin = ref(false)
-          const staff = ref(false)
+          const student = ref(store.student)
+          const admin = ref(store.admin)
+          const staff = ref(store.staff)
 
-          onMounted(() => {
-            window.addEventListener('login-successfull', (e) => {
-              if(e.detail.storage == 'student'){
-                student.value = true
-              }
-              else if (e.detail.storage == 'admin'){
-                admin.value = true
-              }
-              else if (e.detail.storage == 'staff'){
-                staff.value = true
-              }
-            })
+          
 
-            window.addEventListener('logout-successfull', (e) => {
-              student.value = false
-              admin.value = false
-              staff.value = false
-            })
-            if(auth){
-              is_logged_in.value = true
-              if (auth == 'student'){
-                student.value = true
-              }
-              else if (auth == 'admin'){
-                admin.value = true
-              }
-              else if (auth == 'staff'){
-                staff.value = true
-              }
-            }
-            else{
-              is_logged_in.value = false
-            }
-          })
-          return {is_logged_in, student, admin, staff}
+
+          
+          return {is_logged_in, student, admin, staff, store}
          
         }
     }

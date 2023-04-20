@@ -137,7 +137,7 @@ def get_all_resolves():
 
 
 @ticket.route('/add-faq/<int:id>', methods=['POST'])
-@staff_required
+@staff_required()
 def add_faq(id):
     ticket = Ticket.query.filter_by(id=id).first()
     if ticket:
@@ -156,7 +156,7 @@ def get_all_faqs():
 
 @ticket.route('/get-faq/<int:id>', methods=['GET'])
 def get_faq(id):
-    faq = Faq.query.filter_by(ticket_id=id).first()
+    faq = Faq.query.filter_by(id=id).first()
     if faq:
         return make_response(jsonify(faq.to_dict()), 200)
     return make_response({"message": "FAQ not found"}, 404)
