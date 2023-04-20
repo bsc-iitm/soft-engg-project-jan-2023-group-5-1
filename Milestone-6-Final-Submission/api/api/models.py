@@ -3,6 +3,12 @@ from sqlalchemy.sql import func
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
+one_ups_rel = db.Table('one_ups_rel',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('ticket_id', db.Integer, db.ForeignKey('ticket.id'), primary_key=True)
+)
+
+
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -22,7 +28,7 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime(), default=func.now(), onupdate=func.now(), nullable=False)
     issued_tickets = db.relationship('Ticket', foreign_keys='Ticket.issuer' , backref='created_by', lazy='select')
     resolved_tickets = db.relationship('Ticket', backref='resolved_by', foreign_keys='Ticket.resolver', lazy='select')
-    
+
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -68,10 +74,10 @@ class Ticket(db.Model):
     staff_attachments = db.Column(db.ARRAY(db.String(255)))
     is_resolved = db.Column(db.Boolean(), default=False, nullable=False)
     resolved_at = db.Column(db.DateTime())
-    one_up = db.Column(db.Integer(), default = 0)
     issuer = db.Column(db.Integer(), db.ForeignKey('user.id'))
     resolver = db.Column(db.Integer(), db.ForeignKey('user.id'))
     faq_ref = db.relationship('Faq', cascade='all, delete-orphan', backref='ticket_ref')
+    one_uppers = db.relationship('User', secondary=one_ups_rel, lazy='subquery', backref=db.backref('one_ups', lazy=True))
 
     def __repr__(self):
         return f'<Ticket {self.id} - {self.title}>'
@@ -99,7 +105,8 @@ class Ticket(db.Model):
                 "is_resolved": self.is_resolved,
                 "resolved_at": self.resolved_at,
                 "resolver": self.resolved_by.to_dict() if self.resolved_by else None,
-                "one_up": self.one_up,
+                "one_up": len(self.one_uppers),
+                "one_uppers": [user.to_dict() for user in self.one_uppers],
 
 
              }

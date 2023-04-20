@@ -104,11 +104,16 @@ def delete_ticket(id):
 @student_required()
 def one_up(id):
     student_id = get_jwt_identity()
+    student = User.query.filter_by(id = student_id).first()
     ticket_check = Ticket.query.filter_by(id = id).first()
     if ticket_check:
         if ticket_check.issuer == student_id:
             return make_response({"message": "You can't One up yourself"}, 400)
-        ticket_check.one_up += 1
+        elif student in ticket_check.one_uppers:
+            ticket_check.one_uppers.remove(student)
+            db.session.commit()
+            return make_response({"message": "ticket one up removed succesfully"}, 200)
+        ticket_check.one_uppers.append(student)
         db.session.commit()
         return make_response({"message": "ticket one upped succesfully"}, 200)
     return make_response({"message": "ticket doesn't exist"}, 404)
@@ -146,6 +151,16 @@ def add_faq(id):
         db.session.commit()
         return make_response({"message": "FAQ added successfully"}, 201)
     return make_response({"message": "Ticket not found"}, 404)
+
+@ticket.route('/delete-faq/<int:id>', methods=['DELETE'])
+@staff_required()
+def delete_faq(id):
+    faq = Faq.query.filter_by(id=id).first()
+    if faq:
+        db.session.delete(faq)
+        db.session.commit()
+        return make_response({"message": "FAQ deleted successfully"}, 204)
+    return make_response({"message": "FAQ not found"}, 404)
 
 
 @ticket.route('/get-all-faqs', methods=['GET'])

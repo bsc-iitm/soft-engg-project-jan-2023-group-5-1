@@ -8,7 +8,7 @@ from flask_migrate import Migrate
 
 
 
-db = SQLAlchemy()
+db = SQLAlchemy(engine_options={"pool_pre_ping": True})
 jwt = JWTManager()
 mail = SendGridAPIClient("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")
 model = SentenceTransformer('paraphrase-distilroberta-base-v2')
